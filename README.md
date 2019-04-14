@@ -2,7 +2,6 @@
 
 
 ## Configuration File ##
-----
 
 
 ### Example config.yml ###
@@ -42,7 +41,7 @@ resource-checker: true
 | __resource-checker__          | ```boolean``` | enables/disables resource checker                                 | 
 | __memory-time__               | ```string```  | amount of time the resource checker will store mined resources*   |
 
-*integer value followed by "s,m,h,d"<br> [seconds, minutes, hours, days]
+*integer value followed by "s,m,h,d" [seconds, minutes, hours, days]
 
 
 ## Commands ##
@@ -57,16 +56,34 @@ resource-checker: true
 | __/obs cd__ | gets cooldown time remaining |
 | __/obs uses__ | gets number of uses remaining |
 
-### /obs <player_name> ###
-* Saves player state
-* Replaces inventory with [Spectator Inventory](#spectator-inventory)
-* Starts [Observation Session](#observation-session) and targets the player inputted
-* Starts timer
+<details>
+    <summary><b>/obs [player_name]</b></summary>
+    <p>
+        1) Saves player state <br>
+        2) Replaces inventory with [Spectator Inventory](#spectator-inventory) <br> 
+        3) Starts [Observation Session](#observation-session) and targets the player inputted <br>
+        4) Starts timer
+    </p>
+</details>
 
-### /obs info ###
-* Gets number of precious resources mined by target in past "x" time (set in [config.xml](#configuration-file))
-* Gets amount of time player has been online
+<details>
+    <summary><b>/obs info</b></summary>
+    <p>
+        1) Gets number of precious resources mined by target in past "memory-time" time <br>
+        2) Gets amount of time player has been online
+    </p>
+</details>
 
-### /obs back ###
-* sends observer back to previous location and restores their player state
-* refunds a percentage of the cooldown timer based off of time spent in observation ```refund = (time_spent_in_observation / cooldown-time) * ```
+<details>
+    <summary><b>/obs back</b></summary>
+    <p>
+        1) Sends observer back to previous location and restores their player state <br>
+        2) refunds a percentage of the cooldown timer based off of time spent in observation <br> <code> refund = refund-percent * ((time_spent_observing / observation-time) * cooldown-time)) </code>
+    </p>
+</details>
+
+<details>
+    <summary><b>/obs cd</b></summary>
+    <p>Straightforward lol. Gets the amount of time left in the user's cooldown timer</p>
+</details>
+
