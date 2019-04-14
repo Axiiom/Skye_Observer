@@ -1,71 +1,72 @@
 # Spigot_Observe #
 
+
 ## Configuration File ##
-------
+----
+
+
+### Example config.yml ###
 ```yaml
-enabled: (true/false: is plugin enabled)
-player-detection: (true/false: is player-detection enabled)
-  - radius: 10
-cooldowns: (true/false are cooldowns enabled)
-  - permission_level_1: (permission based cooldowns)
-      cooldown-time: 5m (time for cooldown: integer values followed by "s,m,h,d")
-      uses-per-day: 10 (integer value for uses/day)
-  - permission_level_n:
+enabled: true
+cooldown-refund-enabled: true
+    refund-percent: 100
+player-detection: true
+    radius: 10
+cooldowns: true
+    permission_level_1: 
+        cooldown-time: 5m
+        uses-per-day: 10
+        observation-time: 5m
+    permission_level_n:
+resource-checker: true
+    memory-time: 30m
  ```
  
- - - - -
+ 
+ ### Settings ###
+| Field                         | Type          | Description                                                       |
+| ------                        | ------        |  ------                                                           |
+| __enabled__                   | ```boolean``` | enables/disables the plugin                                       |
+| __cooldown-refund-enabled__   | ```boolean``` | enable cooldown refund based on duration of observation session   |
+| __refund-percent__            | ```integer``` | determines amount of cooldown to reduce depending on the amount<br>of time spent in the last observation session |
+| | | 
+| __player-detection__          | ```boolean``` | enable/disables player detection                                  |
+| __radius__                    | ```integer``` | radius of player detection                                        | 
+| __cooldowns__                 | ```boolean``` | enables/disables cooldown timers                                  |
+| | | 
+| __permission-level-n__        |               |                                                                   |
+| __cooldown-time__             | ```string```  | cooldown timer length*  |
+| __uses-per-day__              | ```integer``` | number of uses per day alotted                                    |
+| __observation-time__          | ```string```  | amount of time alloted for each observation period*
+| | | 
+| __resource-checker__          | ```boolean``` | enables/disables resource checker                                 | 
+| __memory-time__               | ```string```  | amount of time the resource checker will store mined resources*   |
+
+*integer value followed by "s,m,h,d"<br> [seconds, minutes, hours, days]
+
 
 ## Commands ##
-(/obs and /observe can both be used)
-<table class="tg">
-  <tr>
-    <th class="tg-yw41"><b>Command</b></th>
-    <th class="tg-yw41"><b>Description</b></th>
-  </tr>
-  <tr>
-    <td class="tg-yw41"><b>/obs [player_name]</b></td>
-    <td class="tg-yw41">observes <player_name></td>
-  </tr>
-  <tr>
-    <td class="tg-yw41"><b>/obs target info</b></td>
-    <td class="tg-yw41">gets pertinent info about current target (can only be run when actively observing)</td>
-  </tr>
-  <tr>
-    <td class="tg-yw41"><b>/obs back</b></td>
-    <td class="tg-yw41">ends observation session and refunds any time remaining into cooldown</td>
-  </tr>
-  <tr>
-    <td class="tg-yw41"><b>/obs cd</b></td>
-    <td class="tg-yw41">gets cooldown time remaining</td>
-  </tr> 
-  <tr>
-    <td class="tg-yw41"><b>/obs uses</b></td>
-    <td class="tg-yw41">gets number of uses remaining</td>
-  </tr> 
-</table>
+----
+/obs and /observe can be used interchangeably
+
+| Command | Description |
+| ------ | ------ |
+| __/obs <player_name>___ | observes <player_name> |
+| __/obs target info__ | gets pertinent info about current target (can only be run when actively observing) |
+| __/obs back__ | ends observation session and refunds any time remaining into cooldown |
+| __/obs cd__ | gets cooldown time remaining |
+| __/obs uses__ | gets number of uses remaining |
 
 ### /obs <player_name> ###
-1) Check Permissions/Cooldown/Uses Left
-1) Save state
-2) Set inventory to [Spectator Inventory](#spectator-inventory) 
-3) Set gamemode to spectator
-4) Set spectator target
-5) Start observe timer
-6) Start observe cooldown timer
+* Saves player state
+* Replaces inventory with [Spectator Inventory](#spectator-inventory)
+* Starts [Observation Session](#observation-session) and targets the player inputted
+* Starts timer
 
-### Spectator Inventory ###
-1) [Diamond Finder](#diamond-finder)
-2) Each hotbar slot after [Diamond Finder](#diamond-finder) and until slot #9 contains the player head of every player within the distance specified in [config.yml](#configuration-file)
-3) Slot #9 contains an item to [Exit Observer Mode](#exit-observer-mode)
+### /obs info ###
+* Gets number of precious resources mined by target in past "x" time (set in [config.xml](#configuration-file))
+* Gets amount of time player has been online
 
-### Diamond Finder ###
-1) OnRightClick - finds the closest Diamond Ore to the spectator
-2) Sets compass target to that diamond
-3) Cooldown as specified in [config.yml](#configuration-file)
-
-### Exit Observer Mode ###
-1) Set observer cooldown to cooldown specified in [config.yml](#configuration-file)
-2) Restore player state
-
-
-  
+### /obs back ###
+* sends observer back to previous location and restores their player state
+* refunds a percentage of the cooldown timer based off of time spent in observation ```refund = (time_spent_in_observation / cooldown-time) * ```
