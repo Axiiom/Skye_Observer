@@ -45,8 +45,6 @@ resource-checker: true
 
 
 ## Commands ##
-----
-
 <details>
     <summary><b>/obs [player_name]</b>: observes [player_name]</summary>
     <p>
