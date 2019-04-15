@@ -1,20 +1,13 @@
 package Spigot_Observe.observe;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
-import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.UUID;
 
 public class Observe
