@@ -6,18 +6,17 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.InputStream;
-
 public final class Main extends JavaPlugin
 {
     private Observe observe;
     private Config config;
-    private final String PROPER_USAGE = ChatColor.RED
-            + "Improper usage of Observe. Valid commands\n"
-            + ChatColor.GOLD + "/obs <player name>" + ChatColor.GRAY + ": observes <player name>\n"
-            + ChatColor.GOLD + "/obs back"          + ChatColor.GRAY + ": ends observation session\n"
-            + ChatColor.GOLD + "/obs cd"            + ChatColor.GRAY + ": gets cooldown time remaining\n"
-            + ChatColor.GOLD + "/obs uses"          + ChatColor.GRAY + ": gets number of uses remaining in the day\n";
+    private final String VALID_COMMANDS =
+              ChatColor.GRAY + "" + ChatColor.ITALIC + "Observe Commands:\n"
+            + ChatColor.GOLD + "/obs"                + ChatColor.GRAY + ": prints help menu\n"
+            + ChatColor.GOLD + "/obs <player name>"  + ChatColor.GRAY + ": observes <player name>\n"
+            + ChatColor.GOLD + "/obs back"           + ChatColor.GRAY + ": ends observation session\n"
+            + ChatColor.GOLD + "/obs cd"             + ChatColor.GRAY + ": gets cooldown time remaining\n"
+            + ChatColor.GOLD + "/obs uses"           + ChatColor.GRAY + ": gets number of uses remaining in the day\n";
 
     @Override
     public void onEnable() {
@@ -31,7 +30,7 @@ public final class Main extends JavaPlugin
             return true;
 
         if(args.length != 1) {
-            sender.sendMessage(PROPER_USAGE);
+            sender.sendMessage(VALID_COMMANDS);
             return true;
         }
 
@@ -46,7 +45,11 @@ public final class Main extends JavaPlugin
         if(cmd.equalsIgnoreCase("obs"))
         {
             cmd = args[0];
-            observe = new Observe(observer, config);
+            observe = new Observe(observer, config, this);
+
+            if(cmd.equalsIgnoreCase("help"))
+                observer.sendMessage(VALID_COMMANDS);
+
             if(cmd.equalsIgnoreCase("info"))
                 return observe.info();
             if(cmd.equalsIgnoreCase("back"))
@@ -55,6 +58,8 @@ public final class Main extends JavaPlugin
                 return observe.cooldown();
             if(cmd.equalsIgnoreCase("uses"))
                 return observe.uses();
+
+            else return observe.beginObservation(cmd);
         }
 
         return true;
@@ -66,13 +71,9 @@ public final class Main extends JavaPlugin
     }
 
     private void initializeConfig() {
-        try {
-         InputStream is = this.getClassLoader().getResourceAsStream("config.yml");
-         config = new Config(is);
-         is.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        getConfig().options().copyDefaults(true);
+        config = new Config(this.getConfig());
+        saveConfig();
     }
 
 }

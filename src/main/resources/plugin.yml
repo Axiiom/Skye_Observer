@@ -2,3 +2,7 @@ name: Observe
 version: ${project.version}
 main: Spigot_Observe.observe.Main
 api-version: 1.13
+
+commands:
+  obs:
+    description: OBSERVE!

@@ -1,12 +1,16 @@
 #config.yml
 enabled: true
-cooldown-refund-enabled: true
+cooldown-refund:
+  enabled: true
   refund-percent: 100
-player-detection-enabled: true
+player-detection:
+  enabled: true
   radius: 10
-cooldowns-enabled: true
+cooldowns:
+  enabled: true
   cooldown-time: 5m
   uses-per-day: 10
   observation-time: 5m
-resource-checker-enabled: true
+resource-checker:
+  enabled: true
   memory-time: 30m

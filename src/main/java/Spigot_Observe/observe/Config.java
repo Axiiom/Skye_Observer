@@ -1,15 +1,10 @@
 package Spigot_Observe.observe;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.yaml.snakeyaml.Yaml;
-import java.io.InputStream;
-import java.util.Map;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public class Config
 {
     //TODO: SETTERS
-
-    Yaml yaml;
 
     private boolean is_enabled;
     private boolean cooldown_refund_enabled;
@@ -26,26 +21,22 @@ public class Config
     private int refund_percent;
 
     private boolean read_yaml_successfully = false;
-    public Config(InputStream is)
+    public Config(FileConfiguration yaml)
     {
-        yaml = new Yaml();
-        Map<String, Object> map = yaml.load(is);
-
-        System.out.println(map);
         try {
-            is_enabled = (Boolean) map.get("enabled");
-            cooldown_refund_enabled = (Boolean) map.get("cooldown-refund-enabled");
-            player_detection_enabled = (Boolean) map.get("player-detection-enabled");
-            cooldowns_enabled = (Boolean) map.get("cooldowns-enabled");
-            resource_checker_enabled = (Boolean) map.get("resource-checker-enabled");
+            is_enabled = yaml.getBoolean("enabled");
+            cooldown_refund_enabled = yaml.getBoolean("cooldown-refund.enabled");
+            player_detection_enabled = yaml.getBoolean("player-detection.enabled");
+            cooldowns_enabled = yaml.getBoolean("cooldowns.enabled");
+            resource_checker_enabled = yaml.getBoolean("resource-checker.enabled");
 
-            cooldown_time = ((Map<String, String>) map.get("cooldowns-enabled")).get("cooldown-time");
-            observation_time = ((Map<String, String>) map.get("cooldowns-enabled")).get("observation-time");
-            memory_time = ((Map<String, String>) map.get("resource-checker-enabled")).get("memory-time");
+            cooldown_time = yaml.getString("cooldowns.cooldown-time");
+            observation_time = yaml.getString("cooldowns.observation-time");
+            memory_time = yaml.getString("resource-checker.memory-time");
 
-            uses_per_day = ((Map<String, Integer>) map.get("cooldowns-enabled")).get("uses-per-day");
-            radius = ((Map<String, Integer>) map.get("player-detection-enabled")).get("radius");
-            refund_percent = ((Map<String, Integer>) map.get("cooldown-refund-enabled")).get("refund-percent");
+            uses_per_day = yaml.getInt("cooldowns.uses-per-day");
+            radius = yaml.getInt("player-detection.radius");
+            refund_percent = yaml.getInt("cooldown-refund.refund-percent");
 
             read_yaml_successfully = true;
         } catch (Exception e) {
