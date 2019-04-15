@@ -1,10 +1,13 @@
 package Spigot_Observe.observe;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.UUID;
 
 public final class Main extends JavaPlugin
 {
@@ -20,7 +23,7 @@ public final class Main extends JavaPlugin
 
     @Override
     public void onEnable() {
-        initializeConfig();
+        loadConfiguration();
     }
 
     @Override
@@ -59,7 +62,10 @@ public final class Main extends JavaPlugin
             if(cmd.equalsIgnoreCase("uses"))
                 return observe.uses();
 
-            else return observe.beginObservation(cmd);
+            else {
+                UUID target_uuid = Bukkit.getPlayer(cmd).getUniqueId();
+                return observe.beginObservation(target_uuid);
+            }
         }
 
         return true;
@@ -70,10 +76,11 @@ public final class Main extends JavaPlugin
         // Plugin shutdown logic
     }
 
-    private void initializeConfig() {
+    private void loadConfiguration() {
         getConfig().options().copyDefaults(true);
-        config = new Config(this.getConfig());
         saveConfig();
+
+        config = new Config(this.getConfig());
     }
 
 }

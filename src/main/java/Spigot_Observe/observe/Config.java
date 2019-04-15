@@ -11,6 +11,7 @@ public class Config
     private boolean player_detection_enabled;
     private boolean cooldowns_enabled;
     private boolean resource_checker_enabled;
+    private boolean delete_unused_data;
 
     private String cooldown_time;
     private String observation_time;
@@ -29,6 +30,7 @@ public class Config
             player_detection_enabled = yaml.getBoolean("player-detection.enabled");
             cooldowns_enabled = yaml.getBoolean("cooldowns.enabled");
             resource_checker_enabled = yaml.getBoolean("resource-checker.enabled");
+            delete_unused_data = yaml.getBoolean("delete-unused-data");
 
             cooldown_time = yaml.getString("cooldowns.cooldown-time");
             observation_time = yaml.getString("cooldowns.observation-time");
@@ -47,6 +49,8 @@ public class Config
         if(this.isEnabled())
             System.out.println("OBSERVE IS ENABLED");
     }
+
+    public boolean deleteUnusedData() { return delete_unused_data; }
 
     public boolean isConstructed() {
         return read_yaml_successfully;

@@ -1,16 +1,17 @@
 package Spigot_Observe.observe;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 
 
+import java.io.IOException;
 import java.util.*;
 import java.io.File;
 
@@ -31,18 +32,31 @@ public class Observe
         uuid = _player.getUniqueId();
     }
 
-    public boolean beginObservation(String _player_name) {
-        boolean saved_player_state = savePlayerState();
+    public boolean beginObservation(UUID _target_uuid) {
+
+        if(_target_uuid.equals(player.getUniqueId())) {
+            player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "No, you can't spectate yourself xD");
+            return true;
+        }
+
+        boolean saved_successfully = savePlayerState();
+        if(saved_successfully) {
+            Player target_player = Bukkit.getPlayer(_target_uuid);
+
+            player.getInventory().clear();
+            player.setGameMode(GameMode.SPECTATOR);
+            player.setSpectatorTarget(target_player);
+        }
+
         return false;
     }
 
     public boolean info() {
-        //only runs loadPlayerState() for testing purposes
-        return loadPlayerState();
+        return false;
     }
 
     public boolean back() {
-        return false;
+        return restorePlayerState();
     }
 
     public boolean cooldown() {
@@ -53,29 +67,64 @@ public class Observe
         return false;
     }
 
-    private boolean savePlayerState()
-    {
+    private boolean savePlayerState() {
         File input_file;
         FileConfiguration yaml;
-        HashMap<Integer, ItemStack> items = getItems();
+
         try {
             input_file = new File(FILE_LOCATION);
             yaml = YamlConfiguration.loadConfiguration(input_file);
-            yaml.createSection(uuid.toString());
-                yaml.addDefault(uuid.toString() + ".location", player.getLocation());
-                yaml.addDefault(uuid.toString() + ".inventory", items);
-            yaml.options().copyDefaults(true);
-            yaml.save(FILE_LOCATION);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
 
-        return true;
+        yaml.createSection(uuid.toString());
+            yaml.addDefault(uuid.toString() + ".name",      player.getName());
+            yaml.addDefault(uuid.toString() + ".location",  player.getLocation());
+            yaml.addDefault(uuid.toString() + ".inventory", getItems());
+        yaml.options().copyDefaults(true);
+
+        return saveYaml(yaml);
     }
 
-    private HashMap<Integer,ItemStack> getItems()
-    {
+    private boolean restorePlayerState() {
+        File input_file;
+        FileConfiguration yaml;
+        try {
+            input_file = new File(FILE_LOCATION);
+            yaml = YamlConfiguration.loadConfiguration(input_file);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if(!input_file.equals(null))
+        {
+            MemorySection items;
+            LinkedHashMap<String, ItemStack> hashed_items;
+            Location location;
+            try {
+                items = yaml.getObject(uuid.toString() + ".inventory", MemorySection.class);
+                hashed_items = (LinkedHashMap) items.getValues(true);
+                location = yaml.getObject(uuid.toString() + ".location", Location.class);
+            } catch (NullPointerException e) {
+                player.sendMessage(ChatColor.RED + "You cannot go back at this time.");
+                return false;
+            }
+
+            restoreItems(hashed_items);
+            restoreLocation(location);
+            deleteUnusedData(config.deleteUnusedData(), yaml);
+
+            return saveYaml(yaml);
+        }
+
+        return false;
+    }
+
+    //TODO theres probably a better way to do this than just to catch all null pointer exceptions...
+    private HashMap<Integer,ItemStack> getItems() {
         HashMap<Integer,ItemStack> items = new HashMap<>();
         ArrayList<ItemStack> items_array = new ArrayList<>(Arrays.asList(player.getInventory().getContents()));
 
@@ -90,33 +139,35 @@ public class Observe
         return items;
     }
 
-    private HashMap<Integer,ItemStack> getItemsHash(ItemStack[] items) {
-        return null;
-    }
-
-
-    public boolean loadPlayerState()
-    {
-        File input_file;
-        FileConfiguration yaml;
+    private boolean saveYaml(FileConfiguration _yaml) {
         try {
-            input_file = new File(FILE_LOCATION);
-            yaml = YamlConfiguration.loadConfiguration(input_file);
-
-            MemorySection items = yaml.getObject(uuid.toString() + ".inventory", MemorySection.class);
-            LinkedHashMap<String, ItemStack> hashed_items = (LinkedHashMap) items.getValues(true);
-            Location location   = yaml.getObject(uuid.toString() + ".location", Location.class);
-
-            for(String item_slot : hashed_items.keySet())
-                player.getInventory().setItem(Integer.parseInt(item_slot), hashed_items.get(item_slot));
-
-            player.teleport(location);
-
-        } catch (Exception e) {
+            _yaml.save(FILE_LOCATION);
+        } catch(IOException e) {
             e.printStackTrace();
             return false;
         }
 
         return true;
+    }
+
+    private void leaveSpectator() {
+        if(player.getGameMode().equals(GameMode.SPECTATOR)) {
+            player.setSpectatorTarget(null);
+            player.setGameMode(GameMode.SURVIVAL);
+        }
+    }
+
+    private void deleteUnusedData(boolean delete, FileConfiguration yaml) {
+        yaml.set(uuid.toString(), "");
+    }
+
+    private void restoreItems(LinkedHashMap<String, ItemStack> _hashed_items) {
+        for(String item_slot : _hashed_items.keySet())
+            player.getInventory().setItem(Integer.parseInt(item_slot), _hashed_items.get(item_slot));
+    }
+
+    private void restoreLocation(Location _location) {
+        leaveSpectator();
+        player.teleport(_location);
     }
 }

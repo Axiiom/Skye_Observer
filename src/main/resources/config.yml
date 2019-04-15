@@ -1,4 +1,3 @@
-#config.yml
 enabled: true
 cooldown-refund:
   enabled: true
@@ -14,3 +13,4 @@ cooldowns:
 resource-checker:
   enabled: true
   memory-time: 30m
+delete-unused-data: false
