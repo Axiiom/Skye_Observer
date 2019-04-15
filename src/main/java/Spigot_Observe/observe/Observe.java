@@ -65,8 +65,6 @@ public class Observe
             yaml = YamlConfiguration.loadConfiguration(input_file);
             yaml.createSection(uuid.toString());
                 yaml.addDefault(uuid.toString() + ".location", player.getLocation());
-
-                HashMap<String, ItemStack[]> items_map = new HashMap<>();
                 yaml.addDefault(uuid.toString() + ".inventory", player.getInventory().getContents());
             yaml.options().copyDefaults(true);
             yaml.save(FILE_LOCATION);
