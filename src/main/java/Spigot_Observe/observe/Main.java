@@ -7,12 +7,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.UUID;
-
 public final class Main extends JavaPlugin
 {
     private Observe observe;
     private Config config;
+    private ContingencyListener contingency_listener;
     private final String VALID_COMMANDS =
               ChatColor.GRAY + "" + ChatColor.ITALIC + "Observe Commands:\n"
             + ChatColor.GOLD + "/obs"                + ChatColor.GRAY + ": prints help menu\n"
@@ -24,6 +23,7 @@ public final class Main extends JavaPlugin
     @Override
     public void onEnable() {
         loadConfiguration();
+        startListeners();
     }
 
     @Override
@@ -63,8 +63,11 @@ public final class Main extends JavaPlugin
                 return observe.uses();
 
             else {
-                UUID target_uuid = Bukkit.getPlayer(cmd).getUniqueId();
-                return observe.beginObservation(target_uuid);
+                Player target = Bukkit.getPlayer(cmd);
+                if(target != null)
+                    return observe.beginObservation(target);
+                else
+                    observer.sendMessage(ChatColor.RED + "Invalid target player.");
             }
         }
 
@@ -81,6 +84,11 @@ public final class Main extends JavaPlugin
         saveConfig();
 
         config = new Config(this.getConfig());
+    }
+
+    private void startListeners() {
+        contingency_listener = new ContingencyListener();
+        getServer().getPluginManager().registerEvents(contingency_listener, this);
     }
 
 }
