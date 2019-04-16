@@ -1,4 +1,4 @@
-package Spigot_Observe.observe;
+package Spigot_Observe.observe.Configurators;
 
 import org.bukkit.configuration.file.FileConfiguration;
 

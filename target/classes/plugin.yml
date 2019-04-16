@@ -1,6 +1,6 @@
 name: Observe
 version: 1.0-SNAPSHOT
-main: Spigot_Observe.observe.Main
+main: Spigot_Observe.observe.Plugin.Main
 api-version: 1.13
 
 commands:
