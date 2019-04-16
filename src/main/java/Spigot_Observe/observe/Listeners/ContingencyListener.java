@@ -13,16 +13,13 @@ public class ContingencyListener implements Listener
     @EventHandler
     public void onLogin(PlayerJoinEvent _event) {
         Player player = _event.getPlayer();
-        PlayerStateConfigurator player_state = new PlayerStateConfigurator(player);
 
-        if(wasObserving(player)) {
-            player.sendMessage(ChatColor.GOLD + "You disconnected while observing - you have been sent back to your"
-                            + " original location.");
+        if(player.getGameMode().equals(GameMode.SPECTATOR))
+        {
+            PlayerStateConfigurator player_state = new PlayerStateConfigurator(player);
+            player.sendMessage(ChatColor.GOLD + "You disconnected while observing "
+                    + " - you have been sent back to your original location.");
             player_state.restorePlayerState();
         }
-    }
-
-    private boolean wasObserving(Player _player) {
-        return _player.getGameMode().equals(GameMode.SPECTATOR);
     }
 }
