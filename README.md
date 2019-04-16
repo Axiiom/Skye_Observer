@@ -42,38 +42,42 @@
 ### Example config.yml ###
 ```yaml
 enabled: true
-cooldown-refund-enabled: true
-    refund-percent: 100
-player-detection: true
-    radius: 10
-cooldowns: true
-    permission_level_1: 
-        cooldown-time: 5m
-        uses-per-day: 10
-        observation-time: 5m
-    permission_level_n:
-resource-checker: true
-    memory-time: 30m
+cooldown-refund:
+  enabled: true
+  refund-percent: 100
+player-detection:
+  enabled: true
+  radius: 10
+cooldowns:
+  enabled: true
+  cooldown-time: 5m
+  uses-per-day: 10
+  observation-time: 5m
+resource-checker:
+  enabled: true
+  memory-time: 30m
+delete-unused-data: false
  ```
  
  
  ### Settings ###
-| Field                         | Type          | Description                                                       |
-| ------                        | ------        |  ------                                                           |
-| __enabled__                   | ```boolean``` | enables/disables the plugin                                       |
-| __cooldown-refund-enabled__   | ```boolean``` | enable cooldown refund based on duration of observation session   |
-| __refund-percent__            | ```integer``` | determines amount of cooldown to reduce depending on the amount<br>of time spent in the last observation session |
+| Field                             | Type          | Description |
+| ------                            | ------        |  ------     |
+| __enabled__                       | ```boolean``` | enables/disables the plugin |
+| __cooldown-refund.enabled__       | ```boolean``` | enable cooldown refund based on duration of observation session |
+| __cooldown-refund.refund-percent__| ```integer``` | determines amount of cooldown to reduce depending on                   the amount<br>of time spent in the last observation session |
 | | | 
-| __player-detection__          | ```boolean``` | enable/disables player detection                                  |
-| __radius__                    | ```integer``` | radius of player detection                                        | 
-| __cooldowns__                 | ```boolean``` | enables/disables cooldown timers                                  |
+| __player-detection.enabled__      | ```boolean``` | enable/disables player detection |
+| __player-detectionradius__        | ```integer``` | radius of player detection | 
+| | |
+| __cooldowns.enabled__             | ```boolean``` | enables/disables cooldown timers |       
+| __cooldowns.cooldown-time__       | ```string```  | cooldown timer length*  |
+| __cooldowns.uses-per-day__        | ```integer``` | number of uses per day alotted |                                   
+| __cooldowns.observation-time__    | ```string```  | amount of time alloted for each observation period* |
 | | | 
-| __permission-level-n__        |               |                                                                   |
-| __cooldown-time__             | ```string```  | cooldown timer length*  |
-| __uses-per-day__              | ```integer``` | number of uses per day alotted                                    |
-| __observation-time__          | ```string```  | amount of time alloted for each observation period*
-| | | 
-| __resource-checker__          | ```boolean``` | enables/disables resource checker                                 | 
-| __memory-time__               | ```string```  | amount of time the resource checker will store mined resources*   |
+| __resource-checker.enabled__      | ```boolean``` | enables/disables resource checker |                              
+| __resource-checker.memory-time__  | ```string```  | amount of time the resource checker will store mined resources* |
+| | |
+| __delete-unused-data__            | ```boolean``` | determines whether or not the data is deleted from player_config.yml | 
 
 *integer value followed by "s,m,h,d" [seconds, minutes, hours, days]
