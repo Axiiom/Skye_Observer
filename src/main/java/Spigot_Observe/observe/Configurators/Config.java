@@ -13,9 +13,9 @@ public class Config
     private boolean resource_checker_enabled;
     private boolean delete_unused_data;
 
-    private String cooldown_time;
-    private String observation_time;
-    private String memory_time;
+    private long cooldown_time;
+    private long observation_time;
+    private long memory_time;
 
     private int uses_per_day;
     private int radius;
@@ -32,9 +32,9 @@ public class Config
             resource_checker_enabled = yaml.getBoolean("resource-checker.enabled");
             delete_unused_data = yaml.getBoolean("delete-unused-data");
 
-            cooldown_time = yaml.getString("cooldowns.cooldown-time");
-            observation_time = yaml.getString("cooldowns.observation-time");
-            memory_time = yaml.getString("resource-checker.memory-time");
+            cooldown_time = toSeconds(yaml.getString("cooldowns.cooldown-time"));
+            observation_time = toSeconds(yaml.getString("cooldowns.observation-time"));
+            memory_time = toSeconds(yaml.getString("resource-checker.memory-time"));
 
             uses_per_day = yaml.getInt("cooldowns.uses-per-day");
             radius = yaml.getInt("player-detection.radius");
@@ -48,6 +48,27 @@ public class Config
 
         if(this.isEnabled())
             System.out.println("OBSERVE IS ENABLED");
+    }
+
+    private long toSeconds(String _time_str)
+    {
+        long time_lng   = Long.parseLong(_time_str);
+        _time_str = _time_str.replaceAll(Long.toString(time_lng), "");
+        char time_char = _time_str.charAt(0);
+
+        switch (time_char) {
+            case 'm':
+                time_lng *= (60);
+                break;
+            case 'h':
+                time_lng *= (60 * 60);
+                break;
+            case 'd':
+                time_lng *= (60 * 60 * 24);
+                break;
+        }
+
+        return time_lng;
     }
 
     public boolean deleteUnusedData() { return delete_unused_data; }
@@ -76,15 +97,15 @@ public class Config
         return resource_checker_enabled;
     }
 
-    public String getCooldownTime() {
+    public long getCooldownTime() {
         return cooldown_time;
     }
 
-    public String getObservationTime() {
+    public long getObservationTime() {
         return observation_time;
     }
 
-    public String getMemoryTime() {
+    public long getMemoryTime() {
         return memory_time;
     }
 
