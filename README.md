@@ -30,12 +30,6 @@
     <p>Straightforward lol. Gets the amount of time left in the user's cooldown timer</p>
 </details>
 
-<details>
-    <summary><b>/obs uses</b>: gets number of uses remaining</summary>
-    <p>Gets number of uses remaining</p>
-</details>
-
-
 ## Configuration File ##
 
 
