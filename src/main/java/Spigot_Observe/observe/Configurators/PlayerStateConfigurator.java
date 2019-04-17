@@ -96,12 +96,8 @@ public class PlayerStateConfigurator
             restoreItems(hashed_items);
             restoreLocation(location);
 
-            if(config.deleteUnusedData()) {
-                yaml.createSection(player.getUniqueId().toString());
-                saveYaml(yaml);
-            }
-
-            return true;
+            yaml.createSection(player.getUniqueId().toString());
+            return saveYaml(yaml);
         }
 
         return false;

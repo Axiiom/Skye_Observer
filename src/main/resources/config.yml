@@ -13,4 +13,3 @@ cooldowns:
 resource-checker:
   enabled: true
   memory-time: 30-m
-delete-unused-data: false
