@@ -56,7 +56,6 @@ cooldowns:
 resource-checker:
   enabled: true
   memory-time: 30-m
-delete-unused-data: false
  ```
  
  
@@ -77,8 +76,6 @@ delete-unused-data: false
 | | | 
 | __resource-checker.enabled__      | ```boolean``` | enables/disables resource checker |                              
 | __resource-checker.memory-time__  | ```string```  | amount of time the resource checker will store mined resources* |
-| | |
-| __delete-unused-data__            | ```boolean``` | determines whether or not the data is deleted from player_config.yml | 
 
 *integer value followed by "-s,-m,-h,-d" [seconds, minutes, hours, days]
  THE DASH IS VERY IMPORTANT
