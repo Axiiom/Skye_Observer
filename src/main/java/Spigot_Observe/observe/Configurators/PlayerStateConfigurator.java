@@ -18,10 +18,12 @@ import java.util.Arrays;
 public class PlayerStateConfigurator
 {
     private static final String FILE_LOCATION = "plugins/Observe/player_data.yml";
+    private Config config;
     private Player player;
     private FileConfiguration yaml;
 
-    public PlayerStateConfigurator() {
+    public PlayerStateConfigurator(Config _config) {
+        config = _config;
         loadConfig();
     }
 
@@ -93,9 +95,13 @@ public class PlayerStateConfigurator
 
             restoreItems(hashed_items);
             restoreLocation(location);
-            yaml.createSection(player.getUniqueId().toString());
 
-            return saveYaml(yaml);
+            if(config.deleteUnusedData()) {
+                yaml.createSection(player.getUniqueId().toString());
+                saveYaml(yaml);
+            }
+
+            return true;
         }
 
         return false;

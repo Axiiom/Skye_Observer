@@ -1,5 +1,6 @@
 package Spigot_Observe.observe.Listeners;
 
+import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Configurators.Cooldowns;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import Spigot_Observe.observe.Main.PluginHead;
@@ -22,10 +23,10 @@ public class ContingencyListener implements Listener
     private PlayerStateConfigurator player_state;
     private ArrayList<UUID> restore_my_inventory;
 
-    public ContingencyListener(Cooldowns _cooldowns, PluginHead _plugin) {
+    public ContingencyListener(Cooldowns _cooldowns, Config _config, PluginHead _plugin) {
         plugin = _plugin;
         cooldowns = _cooldowns;
-        player_state = new PlayerStateConfigurator();
+        player_state = new PlayerStateConfigurator(_config);
         restore_my_inventory = new ArrayList<>();
     }
 

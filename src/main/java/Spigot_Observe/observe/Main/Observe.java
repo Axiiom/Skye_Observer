@@ -22,7 +22,7 @@ public class Observe
     public Observe(Config _config, Plugin _plugin) {
         config = _config;
         plugin = _plugin;
-        player_state = new PlayerStateConfigurator();
+        player_state = new PlayerStateConfigurator(_config);
         is_observing = new HashMap<>();
     }
 

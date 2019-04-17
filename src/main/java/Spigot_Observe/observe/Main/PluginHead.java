@@ -71,7 +71,8 @@ public final class PluginHead extends JavaPlugin
 
     private boolean canObserve(Player _player)
     {
-        if(cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId())) {
+        if(config.isCooldownsEnabled() && cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId()))
+        {
             long delta_cd = checkCooldownTime(_player);
 
             if(delta_cd > 0) {
@@ -157,7 +158,7 @@ public final class PluginHead extends JavaPlugin
     }
 
     private void startListeners() {
-        contingency_listener = new ContingencyListener(cooldowns, this);
+        contingency_listener = new ContingencyListener(cooldowns, config,this);
         getServer().getPluginManager().registerEvents(contingency_listener, this);
     }
 }
