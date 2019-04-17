@@ -1,7 +1,6 @@
 package Spigot_Observe.observe.Plugin;
 
 import Spigot_Observe.observe.Configurators.Config;
-import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import Spigot_Observe.observe.Listeners.ContingencyListener;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
