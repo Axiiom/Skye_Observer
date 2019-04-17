@@ -1,8 +1,10 @@
 package Spigot_Observe.observe.Main;
 
 import Spigot_Observe.observe.Configurators.Config;
+import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import Spigot_Observe.observe.Listeners.ContingencyListener;
 import Spigot_Observe.observe.Configurators.Cooldowns;
+import Spigot_Observe.observe.Listeners.KickTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -15,6 +17,7 @@ public final class PluginHead extends JavaPlugin
     private Observe observe;
     private Config config;
     private Cooldowns cooldowns;
+    private KickTimer kick_timer;
     private ContingencyListener contingency_listener;
     private static final String VALID_COMMANDS =
               ChatColor.GRAY + "" + ChatColor.ITALIC + "Observe Commands:\n"
@@ -27,8 +30,7 @@ public final class PluginHead extends JavaPlugin
     @Override
     public void onEnable() {
         loadMainConfiguration();
-        loadConfigurators();
-        startListeners();
+        start();
     }
 
     @Override
@@ -85,6 +87,7 @@ public final class PluginHead extends JavaPlugin
                 );
             }
 
+            kick_timer.updateCooldowns(cooldowns);
             contingency_listener.updateCooldowns(cooldowns);
         }
         else
@@ -149,11 +152,6 @@ public final class PluginHead extends JavaPlugin
         return VALID_COMMANDS;
     }
 
-    private void loadConfigurators() {
-        observe = new Observe(config);
-        cooldowns = new Cooldowns(config);
-    }
-
     private void loadMainConfiguration() {
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -161,12 +159,17 @@ public final class PluginHead extends JavaPlugin
         config = new Config(this.getConfig());
     }
 
-    private void startListeners() {
+    private void start() {
+        cooldowns = new Cooldowns(config);
         contingency_listener = new ContingencyListener(cooldowns, config,this);
         getServer().getPluginManager().registerEvents(contingency_listener, this);
+
+        observe = new Observe(config, contingency_listener);
+        kick_timer = new KickTimer(this, cooldowns, new PlayerStateConfigurator(config));
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, kick_timer, 0L, 2L);
     }
 
-    private String timeString(long _delta_time)
+    public static String timeString(long _delta_time)
     {
         String time = "";
         _delta_time /= 1000;

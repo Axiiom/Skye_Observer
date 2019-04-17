@@ -2,6 +2,7 @@ package Spigot_Observe.observe.Main;
 
 import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
+import Spigot_Observe.observe.Listeners.ContingencyListener;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
@@ -17,14 +18,16 @@ public class Observe
     private Player target;
     private PlayerStateConfigurator player_state;
     private HashMap<UUID, Boolean> is_observing;
+    private ContingencyListener contingency_listener;
 
-    public Observe(Config _config) {
+    public Observe(Config _config, ContingencyListener _contingency_listener) {
         player = null;
         target = null;
 
         config = _config;
         player_state = new PlayerStateConfigurator(_config);
         is_observing = new HashMap<>();
+        contingency_listener = _contingency_listener;
     }
 
     boolean back() {
@@ -86,12 +89,19 @@ public class Observe
             return failed();
 
         Player target = getSpectator();
-        if(target != null) {
+        if(target != null)
+        {
             String name = target.getName();
             UUID uuid = target.getUniqueId();
 
+            long join_time = contingency_listener.getJoinTime().get(uuid);
+            long online_for = (System.currentTimeMillis() - join_time);
+            String time = PluginHead.timeString(online_for);
+
             player.sendMessage(ChatColor.GRAY + "You are spectating player: " + ChatColor.GOLD + name);
             player.sendMessage(ChatColor.GRAY + "UUID: " + ChatColor.ITALIC + "" + ChatColor.GOLD + uuid.toString());
+            player.sendMessage(ChatColor.GRAY + "Online for: " + ChatColor.GOLD + time + ChatColor.GRAY);
+
             return true;
         }
 

@@ -14,6 +14,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.UUID;
 
 public class ContingencyListener implements Listener
@@ -23,11 +24,18 @@ public class ContingencyListener implements Listener
     private PlayerStateConfigurator player_state;
     private ArrayList<UUID> restore_my_inventory;
 
+    private HashMap<UUID, Long> join_time;
+
     public ContingencyListener(Cooldowns _cooldowns, Config _config, PluginHead _plugin) {
         plugin = _plugin;
         cooldowns = _cooldowns;
         player_state = new PlayerStateConfigurator(_config);
         restore_my_inventory = new ArrayList<>();
+        join_time = new HashMap<>();
+    }
+
+    public HashMap<UUID, Long> getJoinTime() {
+        return join_time;
     }
 
     @EventHandler
@@ -56,8 +64,9 @@ public class ContingencyListener implements Listener
     }
 
     @EventHandler
-    public void onLogin(PlayerJoinEvent _event) {
+    public void onJoin(PlayerJoinEvent _event) {
         Player player = _event.getPlayer();
+        join_time.put(player.getUniqueId(), System.currentTimeMillis());
 
         if(player.getGameMode().equals(GameMode.SPECTATOR))
         {
@@ -65,26 +74,6 @@ public class ContingencyListener implements Listener
             if(player_state.restorePlayerState()) {
                 player.sendMessage(ChatColor.GOLD + "You disconnected while observing "
                         + " - you have been sent back to your original location.");
-            }
-        }
-    }
-
-    @EventHandler
-    public void onMove(PlayerMoveEvent _event) {
-        Player player = _event.getPlayer();
-        if(cooldowns.getTimeUntilKick().containsKey(player.getUniqueId()))
-        {
-            player_state.setPlayer(player);
-            long time_until_kick = (Long) cooldowns.getTimeUntilKick().get(player.getUniqueId());
-
-            if(System.currentTimeMillis() >= time_until_kick) {
-                cooldowns.endTimer(player);
-
-                if(player.getGameMode().equals(GameMode.SPECTATOR)) {
-                    player.sendMessage(ChatColor.GOLD + "Your observation period is over!");
-                    player_state.restorePlayerState();
-                    player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
-                }
             }
         }
     }
