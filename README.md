@@ -68,7 +68,7 @@ resource-checker:
 | __cooldown-refund.refund-percent__| ```integer``` | determines amount of cooldown to reduce depending on                   the amount<br>of time spent in the last observation session |
 | | | 
 | __player-detection.enabled__      | ```boolean``` | enable/disables player detection |
-| __player-detectionradius__        | ```integer``` | radius of player detection | 
+| __player-detection.radius__        | ```integer``` | radius of player detection | 
 | | |
 | __cooldown.enabled__              | ```boolean``` | enables/disables cooldown timer |       
 | __cooldown.length__               | ```string```  | cooldown timer length*  |
