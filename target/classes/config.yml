@@ -5,11 +5,12 @@ cooldown-refund:
 player-detection:
   enabled: true
   radius: 10
-cooldowns:
+cooldown:
   enabled: true
-  cooldown-time: 5-m
-  uses-per-day: 10
-  observation-time: 5-m
+  length: 5-m
+observation-timer:
+  enabled: true
+  length: 10-s
 resource-checker:
   enabled: true
   memory-time: 30-m

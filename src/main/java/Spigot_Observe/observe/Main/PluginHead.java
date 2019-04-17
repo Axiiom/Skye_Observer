@@ -47,33 +47,48 @@ public final class PluginHead extends JavaPlugin
             if(subcommand.equalsIgnoreCase("info")) { return observe.info(); }
             if(subcommand.equalsIgnoreCase("back")) { return observe.back(); }
             if(subcommand.equalsIgnoreCase("uses")) { return observe.uses(); }
-            if(subcommand.equalsIgnoreCase("cd"))   { return checkCooldown(player); }
+            if(subcommand.equalsIgnoreCase("cd"))   { return canObserve(player); }
 
             Player target = Bukkit.getPlayer(subcommand);
             if(target == null)
                 return failed(ChatColor.RED + "Invalid target player.", player);
 
             if(canObserve(player))
-            {
-                observe.setTarget(target);
-                if(observe.beginObservation())
-                {
-                    cooldowns.add(player);
-                    cooldowns.startTimer(player);
-                    contingency_listener.updateCooldowns(cooldowns);
-
-                    player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You can now observe "
-                            + ChatColor.GOLD + target.getName() + ChatColor.GRAY + " for " + ChatColor.GOLD
-                            + config.getObservationTime() + " seconds!");
-                }
-                else
-                    System.out.println("Player could not begin observing...");
-            }
-        } else if(_command.getName().equalsIgnoreCase("ulist")) {
-            startListeners();
+                beginObservation(player, target);
         }
 
         return true;
+    }
+
+    private void beginObservation(Player _player, Player _target)
+    {
+        observe.setTarget(_target);
+        if(observe.beginObservation())
+        {
+            if(config.isObservationTimerEnabled()) {
+                cooldowns.add(_player);
+                cooldowns.startTimer(_player);
+
+                _player.sendMessage(
+                        ChatColor.GRAY + "" + ChatColor.ITALIC + "You can now observe "
+                                + ChatColor.GOLD + "" + ChatColor.ITALIC +  _target.getName()
+                                + ChatColor.GRAY + "" + ChatColor.ITALIC + " for "
+                                + ChatColor.GOLD + "" + ChatColor.ITALIC + config.getObservationTime()
+                                + ChatColor.GRAY + "" + ChatColor.ITALIC + " seconds!"
+                );
+
+            } else {
+                _player.sendMessage(
+                        ChatColor.GRAY + "" + ChatColor.ITALIC + "You are now observing "
+                                + ChatColor.GOLD + "" + ChatColor.ITALIC +  _target.getName()
+                                + ChatColor.GRAY + "" + ChatColor.ITALIC + "!"
+                );
+            }
+
+            contingency_listener.updateCooldowns(cooldowns);
+        }
+        else
+            System.out.println("Player could not begin observing...");
     }
 
     private boolean canObserve(Player _player)
@@ -81,30 +96,12 @@ public final class PluginHead extends JavaPlugin
         if(config.isCooldownsEnabled() && cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId()))
         {
             long delta_cd = checkCooldownTime(_player);
+            String time = timeString(delta_cd);
 
-            if(delta_cd > 0) {
-                return !failed(ChatColor.RED + "You cannot use this command for another "
-                        + delta_cd/1000 + " seconds.", _player);
-            }
+            if(delta_cd > 0)
+                return !failed(ChatColor.RED + "You must wait: " + time, _player);
         }
 
-        return true;
-    }
-
-    private boolean checkCooldown(Player _player)
-    {
-        if(cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId()))
-        {
-            long delta_cd = checkCooldownTime(_player);
-
-            if(delta_cd > 0) {
-                _player.sendMessage(ChatColor.GRAY + "You can observe another player in "
-                        + ChatColor.GOLD + delta_cd / 1000 + ChatColor.GRAY + " seconds.");
-                return true;
-            }
-        }
-
-        _player.sendMessage(ChatColor.GRAY + "You do not have a cooldown.");
         return true;
     }
 
@@ -167,5 +164,30 @@ public final class PluginHead extends JavaPlugin
     private void startListeners() {
         contingency_listener = new ContingencyListener(cooldowns, config,this);
         getServer().getPluginManager().registerEvents(contingency_listener, this);
+    }
+
+    private String timeString(long _delta_time)
+    {
+        String time = "";
+        _delta_time /= 1000;
+
+        int hours   = (int)(_delta_time / 3600);
+        int minutes = (int)(_delta_time / 60) - hours*60;
+        int seconds = (int)(_delta_time) - minutes*60;
+
+        if(hours > 0)
+            time += ChatColor.GOLD + "" + hours + ChatColor.GRAY + " hr";
+        if(minutes > 0) {
+            if(!time.equals(""))
+                time += ", ";
+            time += ChatColor.GOLD + "" + minutes + ChatColor.GRAY + " min ";
+        }
+        if(seconds > 0) {
+            if(!time.equals(""))
+                time += "and ";
+            time += ChatColor.GOLD + "" + seconds + ChatColor.GRAY + " sec ";
+        }
+
+        return time;
     }
 }

@@ -11,6 +11,7 @@ public class Config
     private boolean player_detection_enabled;
     private boolean cooldowns_enabled;
     private boolean resource_checker_enabled;
+    private boolean observation_timer_enabled;
 
     private long cooldown_time;
     private long observation_time;
@@ -27,14 +28,14 @@ public class Config
             is_enabled = yaml.getBoolean("enabled");
             cooldown_refund_enabled = yaml.getBoolean("cooldown-refund.enabled");
             player_detection_enabled = yaml.getBoolean("player-detection.enabled");
-            cooldowns_enabled = yaml.getBoolean("cooldowns.enabled");
+            cooldowns_enabled = yaml.getBoolean("cooldown.enabled");
+            observation_timer_enabled = yaml.getBoolean("observation-timer.enabled");
             resource_checker_enabled = yaml.getBoolean("resource-checker.enabled");
 
-            cooldown_time = toSeconds(yaml.getString("cooldowns.cooldown-time"));
-            observation_time = toSeconds(yaml.getString("cooldowns.observation-time"));
+            cooldown_time = toSeconds(yaml.getString("cooldown.length"));
+            observation_time = toSeconds(yaml.getString("observation-timer.length"));
             memory_time = toSeconds(yaml.getString("resource-checker.memory-time"));
 
-            uses_per_day = yaml.getInt("cooldowns.uses-per-day");
             radius = yaml.getInt("player-detection.radius");
             refund_percent = yaml.getInt("cooldown-refund.refund-percent");
 
@@ -64,6 +65,10 @@ public class Config
         }
 
         return time;
+    }
+
+    public boolean isObservationTimerEnabled() {
+        return observation_timer_enabled;
     }
 
     public boolean isConstructed() {

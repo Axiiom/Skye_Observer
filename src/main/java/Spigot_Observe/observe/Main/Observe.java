@@ -36,7 +36,12 @@ public class Observe
         }
 
         is_observing.put(player.getUniqueId(), false);
-        return player_state.restorePlayerState();
+        if(player_state.restorePlayerState()) {
+            player.sendMessage(ChatColor.GOLD + "You have exited your observation period and have been sent back!");
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
+        }
+
+        return true;
     }
 
     boolean beginObservation() {
