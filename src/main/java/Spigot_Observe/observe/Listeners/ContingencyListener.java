@@ -41,6 +41,7 @@ public class ContingencyListener implements Listener
             cooldowns.endTimer(player);
             restore_my_inventory.add(player.getUniqueId());
             _event.setDeathMessage("");
+            return;
         }
     }
 
@@ -50,14 +51,7 @@ public class ContingencyListener implements Listener
         if(cooldowns.getTimeUntilKick().containsKey(player.getUniqueId()))
         {
             player_state.setPlayer(player);
-            long time_until_kick = (Long) cooldowns.getTimeUntilKick().get(player.getUniqueId());
-
-            if(System.currentTimeMillis() >= time_until_kick) {
-                player.sendMessage(ChatColor.GOLD + "Your observation period is over, Observer is sending you back!");
-                cooldowns.endTimer(player);
-                player_state.restorePlayerState();
-                player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
-            }
+            cooldowns.kickFromObservation(player);
         }
     }
 

@@ -4,8 +4,8 @@ import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -13,15 +13,16 @@ import java.util.UUID;
 public class Observe
 {
     private Config config;
-    private Plugin plugin;
     private Player player;
     private Player target;
     private PlayerStateConfigurator player_state;
     private HashMap<UUID, Boolean> is_observing;
 
-    public Observe(Config _config, Plugin _plugin) {
+    public Observe(Config _config) {
+        player = null;
+        target = null;
+
         config = _config;
-        plugin = _plugin;
         player_state = new PlayerStateConfigurator(_config);
         is_observing = new HashMap<>();
     }
@@ -44,7 +45,9 @@ public class Observe
             return false;
         }
 
-        if(player_state.savePlayerState()) {
+        if(player_state.savePlayerState())
+        {
+            player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
             is_observing.put(player.getUniqueId(), true);
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);

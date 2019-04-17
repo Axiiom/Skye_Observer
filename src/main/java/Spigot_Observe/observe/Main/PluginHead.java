@@ -56,14 +56,21 @@ public final class PluginHead extends JavaPlugin
             if(canObserve(player))
             {
                 observe.setTarget(target);
-                if(observe.beginObservation()) {
+                if(observe.beginObservation())
+                {
                     cooldowns.add(player);
                     cooldowns.startTimer(player);
                     contingency_listener.updateCooldowns(cooldowns);
+
+                    player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "You can now observe "
+                            + ChatColor.GOLD + target.getName() + ChatColor.GRAY + " for " + ChatColor.GOLD
+                            + config.getObservationTime() + " seconds!");
                 }
                 else
                     System.out.println("Player could not begin observing...");
             }
+        } else if(_command.getName().equalsIgnoreCase("ulist")) {
+            startListeners();
         }
 
         return true;
@@ -146,8 +153,8 @@ public final class PluginHead extends JavaPlugin
     }
 
     private void loadConfigurators() {
-        cooldowns = new Cooldowns(config, this);
-        observe = new Observe(config, this);
+        observe = new Observe(config);
+        cooldowns = new Cooldowns(config);
     }
 
     private void loadMainConfiguration() {

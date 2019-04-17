@@ -103,7 +103,9 @@ public class PlayerStateConfigurator
         return false;
     }
 
-    public boolean savePlayerState() {
+    public boolean savePlayerState()
+    {
+        loadConfig();
         yaml.createSection(player.getUniqueId().toString());
         yaml.addDefault(player.getUniqueId().toString() + ".name",      player.getName());
         yaml.addDefault(player.getUniqueId().toString() + ".location",  player.getLocation());

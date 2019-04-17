@@ -1,7 +1,7 @@
 package Spigot_Observe.observe.Configurators;
 
-import Spigot_Observe.observe.Main.PluginHead;
 import org.bukkit.entity.Player;
+
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -9,15 +9,13 @@ import java.util.UUID;
 
 public class Cooldowns
 {
-    private PluginHead plugin;
     private Config config;
     private HashMap<UUID, Long> players_on_cooldown;
     private HashMap<UUID, Long> time_until_kick;
 
 
-    public Cooldowns(Config _config, PluginHead _plugin) {
+    public Cooldowns(Config _config) {
         config = _config;
-        plugin = _plugin;
         players_on_cooldown = new HashMap<>();
         time_until_kick = new HashMap<>();
     }
@@ -40,6 +38,11 @@ public class Cooldowns
 
     public HashMap getTimeUntilKick() {
         return time_until_kick;
+    }
+
+    public void kickFromObservation(Player _player) {
+        if(time_until_kick.containsKey(_player.getUniqueId()))
+            time_until_kick.put(_player.getUniqueId(), 0L);
     }
 
     public void startTimer(Player _player)

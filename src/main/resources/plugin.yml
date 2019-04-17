@@ -6,3 +6,5 @@ api-version: 1.13
 commands:
   obs:
     description: OBSERVE!
+  ulist:
+    description: update listeners
