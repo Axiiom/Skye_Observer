@@ -50,12 +50,12 @@ player-detection:
   radius: 10
 cooldowns:
   enabled: true
-  cooldown-time: 5m
+  cooldown-time: 5-m
   uses-per-day: 10
-  observation-time: 5m
+  observation-time: 5-m
 resource-checker:
   enabled: true
-  memory-time: 30m
+  memory-time: 30-m
 delete-unused-data: false
  ```
  
@@ -80,4 +80,5 @@ delete-unused-data: false
 | | |
 | __delete-unused-data__            | ```boolean``` | determines whether or not the data is deleted from player_config.yml | 
 
-*integer value followed by "s,m,h,d" [seconds, minutes, hours, days]
+*integer value followed by "-s,-m,-h,-d" [seconds, minutes, hours, days]
+ THE DASH IS VERY IMPORTANT
