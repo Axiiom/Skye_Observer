@@ -1,7 +1,8 @@
-package Spigot_Observe.observe.Plugin;
+package Spigot_Observe.observe.Main;
 
 import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Listeners.ContingencyListener;
+import Spigot_Observe.observe.Configurators.Cooldowns;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -9,10 +10,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public final class Main extends JavaPlugin
+public final class PluginHead extends JavaPlugin
 {
     private Observe observe;
     private Config config;
+    private Cooldowns cooldowns;
     private ContingencyListener contingency_listener;
     private static final String VALID_COMMANDS =
               ChatColor.GRAY + "" + ChatColor.ITALIC + "Observe Commands:\n"
@@ -24,43 +26,90 @@ public final class Main extends JavaPlugin
 
     @Override
     public void onEnable() {
-        loadConfiguration();
+        loadMainConfiguration();
+        loadConfigurators();
         startListeners();
     }
 
     @Override
     public boolean onCommand(CommandSender _sender, Command _command, String _label, String[] _args)
     {
-        if(!inputIsValid(_sender, _args))
+        if(inputInvalid(_sender, _args))
             return true;
 
         Player player = (Player) _sender;
         if(_command.getName().equalsIgnoreCase("obs"))
         {
             String subcommand = _args[0];
-            observe = new Observe(player, config, this);
+            observe.setPlayer(player);
 
             if(subcommand.equalsIgnoreCase("help")) { return observe.help(); }
             if(subcommand.equalsIgnoreCase("info")) { return observe.info(); }
             if(subcommand.equalsIgnoreCase("back")) { return observe.back(); }
-            if(subcommand.equalsIgnoreCase("cd"))   { return observe.cldn(); }
             if(subcommand.equalsIgnoreCase("uses")) { return observe.uses(); }
+            if(subcommand.equalsIgnoreCase("cd"))   { return checkCooldown(player); }
 
             Player target = Bukkit.getPlayer(subcommand);
             if(target == null)
                 return failed(ChatColor.RED + "Invalid target player.", player);
 
-            observe.setTarget(target);
-            return observe.beginObservation();
+            if(canObserve(player))
+            {
+                observe.setTarget(target);
+                if(observe.beginObservation()) {
+                    cooldowns.add(player);
+                    cooldowns.startTimer(player);
+                    contingency_listener.updateCooldowns(cooldowns);
+                }
+                else
+                    System.out.println("Player could not begin observing...");
+            }
         }
 
         return true;
     }
 
-    private boolean inputIsValid(CommandSender _sender, String[] _args)
+    private boolean canObserve(Player _player)
+    {
+        if(cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId())) {
+            long delta_cd = checkCooldownTime(_player);
+
+            if(delta_cd > 0) {
+                return !failed(ChatColor.RED + "You cannot use this command for another "
+                        + delta_cd/1000 + " seconds.", _player);
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkCooldown(Player _player)
+    {
+        if(cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId()))
+        {
+            long delta_cd = checkCooldownTime(_player);
+
+            if(delta_cd > 0) {
+                _player.sendMessage(ChatColor.GRAY + "You can observe another player in "
+                        + ChatColor.GOLD + delta_cd / 1000 + ChatColor.GRAY + " seconds.");
+                return true;
+            }
+        }
+
+        _player.sendMessage(ChatColor.GRAY + "You do not have a cooldown.");
+        return true;
+    }
+
+    private long checkCooldownTime(Player _player)
+    {
+        long cd_time  = (Long) cooldowns.getPlayersOnCooldown().get(_player.getUniqueId());
+        return cd_time - System.currentTimeMillis();
+    }
+
+    private boolean inputInvalid(CommandSender _sender, String[] _args)
     {
         if(!config.isConstructed() || !config.isEnabled())
-            return false;
+            return true;
 
         Player player;
 
@@ -76,17 +125,31 @@ public final class Main extends JavaPlugin
                 e.printStackTrace();
             }
 
-            return false;
+            return true;
         }
 
         if(_args.length != 1)
-            return !failed(VALID_COMMANDS, player);
+            return failed(VALID_COMMANDS, player);
 
+        return false;
+    }
+
+    private boolean failed(String _message, CommandSender _sender)
+    {
+        _sender.sendMessage(_message);
         return true;
     }
 
+    static String getValidCommands() {
+        return VALID_COMMANDS;
+    }
 
-    private void loadConfiguration() {
+    private void loadConfigurators() {
+        cooldowns = new Cooldowns(config, this);
+        observe = new Observe(config, this);
+    }
+
+    private void loadMainConfiguration() {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
@@ -94,16 +157,7 @@ public final class Main extends JavaPlugin
     }
 
     private void startListeners() {
-        contingency_listener = new ContingencyListener();
+        contingency_listener = new ContingencyListener(cooldowns, this);
         getServer().getPluginManager().registerEvents(contingency_listener, this);
-    }
-
-    private boolean failed(String _message, CommandSender _sender) {
-        _sender.sendMessage(_message);
-        return true;
-    }
-
-    static String getValidCommands() {
-        return VALID_COMMANDS;
     }
 }

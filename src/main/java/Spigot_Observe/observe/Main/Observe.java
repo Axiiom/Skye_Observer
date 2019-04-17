@@ -1,4 +1,4 @@
-package Spigot_Observe.observe.Plugin;
+package Spigot_Observe.observe.Main;
 
 import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
@@ -7,42 +7,45 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public class Observe
 {
-    private boolean is_observing;
-
     private Config config;
     private Plugin plugin;
     private Player player;
     private Player target;
     private PlayerStateConfigurator player_state;
+    private HashMap<UUID, Boolean> is_observing;
 
-    public Observe(Player _player, Config _config, Plugin _plugin) {
-        player = _player;
+    public Observe(Config _config, Plugin _plugin) {
         config = _config;
         plugin = _plugin;
-        player_state = new PlayerStateConfigurator(player);
-
-        try {
-            is_observing = _player.getSpectatorTarget() != null;
-        } catch (NullPointerException e) {
-            is_observing = false;
-        }
+        player_state = new PlayerStateConfigurator();
+        is_observing = new HashMap<>();
     }
 
-    void setTarget(Player _target) {
-        target = _target;
+    boolean back() {
+        try {
+            if(!is_observing.get(player.getUniqueId()))
+                return failed();
+        } catch (Exception e) {
+            return failed();
+        }
+
+        is_observing.put(player.getUniqueId(), false);
+        return player_state.restorePlayerState();
     }
 
     boolean beginObservation() {
         if(target.getUniqueId().equals(player.getUniqueId())) {
             player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "YoU CaNnOt SpEcTaTe YoUrSeLf");
-            return true;
+            return false;
         }
 
         if(player_state.savePlayerState()) {
+            is_observing.put(player.getUniqueId(), true);
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);
             player.setSpectatorTarget(target);
@@ -52,13 +55,26 @@ public class Observe
         return false;
     }
 
+    private boolean failed() {
+        player.sendMessage(ChatColor.RED + "You must be actively observing someone in order to use this command.");
+        return false;
+    }
+
+    private Player getSpectator() {
+        try {
+            return (Player) player.getSpectatorTarget();
+        } catch (ClassCastException e) {
+            return null;
+        }
+    }
+
     boolean help() {
-        player.sendMessage(Main.getValidCommands());
+        player.sendMessage(PluginHead.getValidCommands());
         return true;
     }
 
     boolean info() {
-        if(!is_observing)
+        if(!is_observing.get(player.getUniqueId()))
             return failed();
 
         Player target = getSpectator();
@@ -74,32 +90,17 @@ public class Observe
         return false;
     }
 
-    boolean back() {
-        if(!is_observing)
-            return failed();
-
-        is_observing = false;
-        return player_state.restorePlayerState();
+    public void setPlayer(Player _player) {
+        player = _player;
+        player_state.setPlayer(_player);
     }
 
-    boolean cldn() {
-        return false;
+    void setTarget(Player _target) {
+        target = _target;
     }
 
     boolean uses() {
+        player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Unimplemented");
         return false;
-    }
-
-    private boolean failed() {
-        player.sendMessage(ChatColor.RED + "You must be actively observing someone in order to use this command.");
-        return false;
-    }
-
-    private Player getSpectator() {
-        try {
-           return (Player) player.getSpectatorTarget();
-        } catch (ClassCastException e) {
-            return null;
-        }
     }
 }

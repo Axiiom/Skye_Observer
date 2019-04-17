@@ -42,33 +42,30 @@ public class Config
 
             read_yaml_successfully = true;
         } catch (Exception e) {
-            System.out.println("YAML DID NOT PARSE");
+            System.out.println("YAML DID NOT PARSE - SEE \'CONFIG.JAVA\' CONSTRUCTOR");
             e.printStackTrace();
         }
-
-        if(this.isEnabled())
-            System.out.println("OBSERVE IS ENABLED");
     }
 
     private long toSeconds(String _time_str)
     {
-        long time_lng   = Long.parseLong(_time_str);
-        _time_str = _time_str.replaceAll(Long.toString(time_lng), "");
-        char time_char = _time_str.charAt(0);
+        String[] split = _time_str.split("-");
+        long time = (long) Integer.parseInt(split[0]);
+        char modifier = split[1].charAt(0);
 
-        switch (time_char) {
+        switch (modifier) {
             case 'm':
-                time_lng *= (60);
+                time *= (60);
                 break;
             case 'h':
-                time_lng *= (60 * 60);
+                time *= (60 * 60);
                 break;
             case 'd':
-                time_lng *= (60 * 60 * 24);
+                time *= (60 * 60 * 24);
                 break;
         }
 
-        return time_lng;
+        return time;
     }
 
     public boolean deleteUnusedData() { return delete_unused_data; }

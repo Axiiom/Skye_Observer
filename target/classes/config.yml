@@ -7,10 +7,10 @@ player-detection:
   radius: 10
 cooldowns:
   enabled: true
-  cooldown-time: 5m
+  cooldown-time: 5-m
   uses-per-day: 10
-  observation-time: 5m
+  observation-time: 5-m
 resource-checker:
   enabled: true
-  memory-time: 30m
+  memory-time: 30-m
 delete-unused-data: false
