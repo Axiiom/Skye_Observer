@@ -48,11 +48,12 @@ cooldown-refund:
 player-detection:
   enabled: true
   radius: 10
-cooldowns:
+cooldown:
   enabled: true
-  cooldown-time: 5-m
-  uses-per-day: 10
-  observation-time: 5-m
+  length: 5-m
+observation-timer:
+  enabled: true
+  length: 10-s
 resource-checker:
   enabled: true
   memory-time: 30-m
@@ -69,10 +70,11 @@ resource-checker:
 | __player-detection.enabled__      | ```boolean``` | enable/disables player detection |
 | __player-detectionradius__        | ```integer``` | radius of player detection | 
 | | |
-| __cooldowns.enabled__             | ```boolean``` | enables/disables cooldown timers |       
-| __cooldowns.cooldown-time__       | ```string```  | cooldown timer length*  |
-| __cooldowns.uses-per-day__        | ```integer``` | number of uses per day alotted |                                   
-| __cooldowns.observation-time__    | ```string```  | amount of time alloted for each observation period* |
+| __cooldown.enabled__              | ```boolean``` | enables/disables cooldown timer |       
+| __cooldown.length__               | ```string```  | cooldown timer length*  |
+| | |
+| __observation-timer.enabled__     | ```boolean``` | enables/disables observation timer |
+| __observation-timer.length__      | ```string```  | amount of time alloted for each observation period* |
 | | | 
 | __resource-checker.enabled__      | ```boolean``` | enables/disables resource checker |                              
 | __resource-checker.memory-time__  | ```string```  | amount of time the resource checker will store mined resources* |
