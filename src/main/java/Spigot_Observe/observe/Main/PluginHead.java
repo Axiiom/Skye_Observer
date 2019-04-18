@@ -4,13 +4,14 @@ import Spigot_Observe.observe.Configurators.Config;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import Spigot_Observe.observe.Listeners.ContingencyListener;
 import Spigot_Observe.observe.Configurators.Cooldowns;
-import Spigot_Observe.observe.Listeners.KickTimer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public final class PluginHead extends JavaPlugin
 {
@@ -43,33 +44,59 @@ public final class PluginHead extends JavaPlugin
         if(_command.getName().equalsIgnoreCase("obs"))
         {
             String subcommand = _args[0];
-            observe.setPlayer(player);
-
-            if(subcommand.equalsIgnoreCase("help")) { return observe.help(); }
-            if(subcommand.equalsIgnoreCase("info")) { return observe.info(); }
-            if(subcommand.equalsIgnoreCase("back")) { return observe.back(); }
-            if(subcommand.equalsIgnoreCase("uses")) { return observe.uses(); }
-            if(subcommand.equalsIgnoreCase("cd"))   { return canObserve(player); }
+            if(subcommand.equalsIgnoreCase("help")) { return help(player); }
+            if(subcommand.equalsIgnoreCase("info")) { return info(player); }
+            if(subcommand.equalsIgnoreCase("back")) { return back(player); }
+            if(subcommand.equalsIgnoreCase("uses")) { return uses(player); }
+            if(subcommand.equalsIgnoreCase("cd"))   { return cldn(player); }
 
             Player target = Bukkit.getPlayer(subcommand);
             if(target == null)
                 return failed(ChatColor.RED + "Invalid target player.", player);
 
-            if(canObserve(player))
+            if(cldn(player))
                 beginObservation(player, target);
         }
 
         return true;
     }
 
+    private boolean uses(Player _player) {
+        observe.setPlayer(_player);
+        return observe.uses();
+    }
+
+    private boolean info(Player _player) {
+        observe.setPlayer(_player);
+        return observe.info();
+    }
+
+    private boolean help(Player _player) {
+        _player.sendMessage(VALID_COMMANDS);
+        return true;
+    }
+
+    private boolean back(Player _player) {
+        observe.setPlayer(_player);
+        if(!observe.back())
+            return false;
+
+        cooldowns.remove(_player);
+        observe.updateCooldowns(cooldowns);
+        return true;
+    }
+
+
     private void beginObservation(Player _player, Player _target)
     {
+        observe.setPlayer(_player);
         observe.setTarget(_target);
         if(observe.beginObservation())
         {
             if(config.isObservationTimerEnabled()) {
                 cooldowns.add(_player);
                 cooldowns.startTimer(_player);
+                observe.updateCooldowns(cooldowns);
 
                 _player.sendMessage(
                         ChatColor.GRAY + "" + ChatColor.ITALIC + "You can now observe "
@@ -87,31 +114,27 @@ public final class PluginHead extends JavaPlugin
                 );
             }
 
-            kick_timer.updateCooldowns(cooldowns);
             contingency_listener.updateCooldowns(cooldowns);
         }
         else
             System.out.println("Player could not begin observing...");
     }
 
-    private boolean canObserve(Player _player)
+    private boolean cldn(Player _player)
     {
         if(config.isCooldownsEnabled() && cooldowns.getPlayersOnCooldown().containsKey(_player.getUniqueId()))
         {
-            long delta_cd = checkCooldownTime(_player);
+            long cd_time  = (Long) cooldowns.getPlayersOnCooldown().get(_player.getUniqueId());
+            long delta_cd = cd_time - System.currentTimeMillis();
             String time = timeString(delta_cd);
 
-            if(delta_cd > 0)
-                return !failed(ChatColor.RED + "You must wait: " + time, _player);
+            if(delta_cd > 0) {
+                _player.sendMessage(ChatColor.RED + "You must wait: " + time);
+                return false;
+            }
         }
 
         return true;
-    }
-
-    private long checkCooldownTime(Player _player)
-    {
-        long cd_time  = (Long) cooldowns.getPlayersOnCooldown().get(_player.getUniqueId());
-        return cd_time - System.currentTimeMillis();
     }
 
     private boolean inputInvalid(CommandSender _sender, String[] _args)
@@ -162,10 +185,11 @@ public final class PluginHead extends JavaPlugin
     private void start() {
         cooldowns = new Cooldowns(config);
         contingency_listener = new ContingencyListener(cooldowns, config,this);
-        getServer().getPluginManager().registerEvents(contingency_listener, this);
 
         observe = new Observe(config, contingency_listener);
-        kick_timer = new KickTimer(this, cooldowns, new PlayerStateConfigurator(config));
+        kick_timer = new KickTimer();
+
+        getServer().getPluginManager().registerEvents(contingency_listener, this);
         getServer().getScheduler().scheduleSyncRepeatingTask(this, kick_timer, 0L, 2L);
     }
 
@@ -193,4 +217,38 @@ public final class PluginHead extends JavaPlugin
 
         return time;
     }
+
+    public void updateCooldowns(Cooldowns _cooldowns) {
+        cooldowns = _cooldowns;
+    }
+
+    class KickTimer extends BukkitRunnable
+    {
+        @Override
+        public void run()
+        {
+            for(Player p : getServer().getOnlinePlayers())
+            {
+                boolean is_observing = cooldowns.getTimeUntilKick().containsKey(p.getUniqueId());
+                if(is_observing)
+                {
+                    long current_time    = System.currentTimeMillis();
+                    long time_until_kick = (Long) cooldowns.getTimeUntilKick().get(p.getUniqueId());
+
+                    if(current_time >= time_until_kick)
+                    {
+                        PlayerStateConfigurator player_state = new PlayerStateConfigurator(config);
+                        player_state.setPlayer(p);
+                        if(player_state.restorePlayerState()) {
+                            p.sendMessage(ChatColor.GOLD + "Your observation period has ended.");
+                            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
+                            cooldowns.remove(p);
+                            observe.updateCooldowns(cooldowns);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

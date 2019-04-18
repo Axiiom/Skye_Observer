@@ -1,6 +1,7 @@
 package Spigot_Observe.observe.Main;
 
 import Spigot_Observe.observe.Configurators.Config;
+import Spigot_Observe.observe.Configurators.Cooldowns;
 import Spigot_Observe.observe.Configurators.PlayerStateConfigurator;
 import Spigot_Observe.observe.Listeners.ContingencyListener;
 import org.bukkit.ChatColor;
@@ -16,29 +17,28 @@ public class Observe
     private Config config;
     private Player player;
     private Player target;
+    private Cooldowns cooldowns;
     private PlayerStateConfigurator player_state;
-    private HashMap<UUID, Boolean> is_observing;
     private ContingencyListener contingency_listener;
 
     public Observe(Config _config, ContingencyListener _contingency_listener) {
         player = null;
         target = null;
+        cooldowns = null;
 
         config = _config;
         player_state = new PlayerStateConfigurator(_config);
-        is_observing = new HashMap<>();
         contingency_listener = _contingency_listener;
     }
 
     boolean back() {
         try {
-            if(!is_observing.get(player.getUniqueId()))
+            if(!cooldowns.getTimeUntilKick().containsKey(player.getUniqueId()))
                 return failed();
         } catch (Exception e) {
             return failed();
         }
 
-        is_observing.put(player.getUniqueId(), false);
         if(player_state.restorePlayerState()) {
             player.sendMessage(ChatColor.GOLD + "You have exited your observation period and have been sent back!");
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
@@ -56,7 +56,6 @@ public class Observe
         if(player_state.savePlayerState())
         {
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
-            is_observing.put(player.getUniqueId(), true);
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);
             player.setSpectatorTarget(target);
@@ -85,7 +84,7 @@ public class Observe
     }
 
     boolean info() {
-        if(!is_observing.get(player.getUniqueId()))
+        if(!cooldowns.getTimeUntilKick().containsKey(player.getUniqueId()))
             return failed();
 
         Player target = getSpectator();
@@ -120,5 +119,9 @@ public class Observe
     boolean uses() {
         player.sendMessage(ChatColor.GRAY + "" + ChatColor.ITALIC + "Unimplemented");
         return false;
+    }
+
+    public void updateCooldowns(Cooldowns _cooldowns) {
+        cooldowns = _cooldowns;
     }
 }

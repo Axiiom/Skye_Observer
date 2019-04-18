@@ -58,8 +58,9 @@ public class ContingencyListener implements Listener
         Player player = _event.getPlayer();
         if(cooldowns.getTimeUntilKick().containsKey(player.getUniqueId()))
         {
-            player_state.setPlayer(player);
-            cooldowns.kickFromObservation(player);
+            _event.setCancelled(true);
+            player.sendMessage(ChatColor.GRAY + "You cannot leave your target, in order to exit use:\n"
+                    + ChatColor.GOLD + "/obs back");
         }
     }
 

@@ -45,6 +45,10 @@ public class Cooldowns
             time_until_kick.put(_player.getUniqueId(), 0L);
     }
 
+    public void remove(Player _player) {
+        time_until_kick.remove(_player.getUniqueId());
+    }
+
     public void startTimer(Player _player)
     {
         long global_timer = config.getObservationTime();
