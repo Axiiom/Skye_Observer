@@ -8,6 +8,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -17,15 +18,17 @@ public class Observe
     private Config config;
     private Player player;
     private Player target;
+    private PluginHead plugin;
     private Cooldowns cooldowns;
     private PlayerStateConfigurator player_state;
     private ContingencyListener contingency_listener;
 
-    public Observe(Config _config, ContingencyListener _contingency_listener) {
+    public Observe(Config _config, ContingencyListener _contingency_listener, PluginHead _plugin) {
         player = null;
         target = null;
         cooldowns = null;
 
+        plugin = _plugin;
         config = _config;
         player_state = new PlayerStateConfigurator(_config);
         contingency_listener = _contingency_listener;
@@ -58,7 +61,14 @@ public class Observe
             player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 4, 1);
             player.getInventory().clear();
             player.setGameMode(GameMode.SPECTATOR);
-            player.setSpectatorTarget(target);
+
+            player.teleport(target);
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                public void run() {
+                    player.setSpectatorTarget(target);
+                }
+            }, 5L);
+
             return true;
         }
 

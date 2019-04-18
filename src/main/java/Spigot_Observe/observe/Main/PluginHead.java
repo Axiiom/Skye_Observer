@@ -186,7 +186,7 @@ public final class PluginHead extends JavaPlugin
         cooldowns = new Cooldowns(config);
         contingency_listener = new ContingencyListener(cooldowns, config,this);
 
-        observe = new Observe(config, contingency_listener);
+        observe = new Observe(config, contingency_listener, this);
         kick_timer = new KickTimer();
 
         getServer().getPluginManager().registerEvents(contingency_listener, this);
