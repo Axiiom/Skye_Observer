@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 public class PlayerStateConfigurator
 {
-    private static final String FILE_LOCATION = "plugins/Observe/player_data.yml";
+    private static final String FILE_LOCATION = "chatChannels/Observe/player_data.yml";
 
     private Config config;
     private Player player;

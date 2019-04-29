@@ -187,10 +187,11 @@ public final class PluginHead extends JavaPlugin
         contingency_listener = new ContingencyListener(cooldowns, config,this);
 
         observe = new Observe(config, contingency_listener, this);
-        kick_timer = new KickTimer();
 
         getServer().getPluginManager().registerEvents(contingency_listener, this);
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, kick_timer, 0L, 2L);
+
+        kick_timer = new KickTimer();
+        kick_timer.runTaskTimer(this, 0L, 20L);
     }
 
     public static String timeString(long _delta_time)
