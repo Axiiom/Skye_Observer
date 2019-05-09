@@ -1,4 +1,4 @@
-name: Observe
+name: SkyeObserve
 version: ${project.version}
 main: Spigot_Observe.observe.Main.PluginHead
 api-version: 1.13
